@@ -1,0 +1,49 @@
+name: Quality
+
+on:
+    workflow_call:
+        inputs:
+            use-node-version:
+                description: The nodeJS version, default to "latest".
+                required: false
+                default: "latest"
+                type: string
+            max-warnings:
+                description: The number of warning issues accepted before being considered as a failure.
+                required: false
+                default: -1
+                type: number
+        secrets:
+            github-token:
+                description: The Github token with "repository viewer" access.
+                required: true
+            
+jobs:
+    scan-code:
+        runs-on: ubuntu-latest
+        name: Scan code for quality issues
+        steps:
+            - id: checkout-code
+              name: Initialize code
+              uses: actions/checkout@v4
+              with:
+                token: ${{ secrets.github-token }}
+            - id: setup-node
+              name: Initialize NodeJS
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ inputs.use-node-version }}
+                cache: "npm"
+            - id: setup-eslint
+              name: Initialize eslint
+              run: |
+                npm install -g eslint
+                eslint --version --env-info
+            - id: scan-code
+              name: Scan code for quality issues
+              run: |
+                eslint \
+                    --debug \
+                    --color \
+                    --max-warnings="${{ inputs.max-warnings }}" \
+                    . >> $GITHUB_STEP_SUMMARY
