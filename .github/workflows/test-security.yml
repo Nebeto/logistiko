@@ -17,8 +17,8 @@ jobs:
       scan-mode: "all"
       snyk-organization: ${{ vars.SNYK_ORGANIZATION }}
       snyk-project: ${{ vars.SNYK_PROJECT }}
-      target: ${{ github.ref }}
-      severity-threshold: "low|medium|high"
+      target: ${{ github.ref_name }}
+      severity-threshold: "critical"
       fail-on: "upgradable"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
