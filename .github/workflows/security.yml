@@ -34,6 +34,7 @@ on:
             fail-on:
                 description: The "fail" strategy, available are "upgradable", "patchable" or "all", default to "upgradable".
                 required: false
+                default: "upgradable"
                 type: string
         secrets:
             github-token:

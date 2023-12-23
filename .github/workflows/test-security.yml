@@ -1,0 +1,31 @@
+name: Test security.yml
+
+on:
+  push:
+    paths:
+      - ".github/workflows/security.yml"
+      - ".github/workflows/test-security.yml"
+        
+jobs:
+    test-security:
+        runs-on: ubuntu-latest
+        name: Test security.yml
+        steps:
+            - id: checkout-code
+              name: Initialize code
+              uses: actions/checkout@v4
+            - id: test-workflows
+              uses: Nebeto/logistiko/.github/workflows/security.yml
+              with:
+                use-node-version: "latest"
+                use-scan-mode: "all"
+                use-snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
+                use-snyk-project: "nbt-test-logistiko"
+                target: ${{ github.ref }}
+                severity-threshold: "low|medium|high|critical"
+                fail-on: "upgradable"
+              secrets:
+                github-token: ${{ GITHUB_TOKEN }}
+                snyk-token: ${{ secrets.SNYK_TOKEN }}
+
+            
