@@ -21,6 +21,7 @@ on:
       snyk-organization:
         description: The Snyk organization on which project is managed.
         required: true
+        type: string
       snyk-project:
         description: The Snyk project on which reports will be uploaded.
         required: true
