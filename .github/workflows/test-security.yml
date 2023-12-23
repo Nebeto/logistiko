@@ -15,7 +15,7 @@ jobs:
               name: Initialize code
               uses: actions/checkout@v4
             - id: test-workflows
-              uses: Nebeto/logistiko/.github/workflows/security.yml
+              uses: Nebeto/logistiko/.github/workflows/security.yml@main
               with:
                 use-node-version: "latest"
                 use-scan-mode: "all"
