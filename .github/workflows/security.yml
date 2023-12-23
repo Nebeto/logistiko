@@ -13,11 +13,7 @@ on:
                 required: false
                 default: "all"
                 type: string
-            use-snyk-organization:
-                description: The Snyk organization on which project is managed.
-                required: true
-                type: string
-            use-snyk-project:
+            snyk-project:
                 description: The Snyk project on which reports will be uploaded.
                 required: true
                 type: string
@@ -39,6 +35,9 @@ on:
         secrets:
             github-token:
                 description: The Github token with "repository viewer" access.
+                required: true
+            snyk-organization:
+                description: The Snyk organization on which project is managed.
                 required: true
             snyk-token:
                 description: The Snyk token. 
@@ -73,8 +72,8 @@ jobs:
                     -d \
                     --report \
                     --json \
-                    --org="${{ inputs.use-snyk-organization }}" \
-                    --project-name="${{ inputs.use-snyk-project }}" \
+                    --org="${{ secrets.snyk-organization }}" \
+                    --project-name="${{ inputs.snyk-project }}" \
                     --target-name="${{ inputs.target }}" \
                     --severity-threshold="${{ inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
             - id: summarize-report
@@ -125,8 +124,8 @@ jobs:
                     -d \
                     --report \
                     --json \
-                    --org="${{ inputs.use-snyk-organization }}" \
-                    --project-name="${{ inputs.use-snyk-project }}" \
+                    --org="${{ secrets.snyk-organization }}" \
+                    --project-name="${{ inputs.snyk-project }}" \
                     --target-name="${{ inputs.target }}" \
                     --severity-threshold="${{ inputs.severity-threshold }}" 
                     --fail-on="${{ inputs.fail-on }}" >> ${{runner.temp}}/report_scan-dependencies.json

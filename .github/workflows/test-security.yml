@@ -13,13 +13,13 @@ jobs:
         with:
           use-node-version: "latest"
           use-scan-mode: "all"
-          use-snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
-          use-snyk-project: "nbt-test-logistiko"
+          snyk-project: ${{ vars.SNYK_PROJECT }}
           target: ${{ github.ref }}
           severity-threshold: "low|medium|high|critical"
           fail-on: "upgradable"
         secrets:
-          github-token: ${{ GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
           snyk-token: ${{ secrets.SNYK_TOKEN }}
 
             
