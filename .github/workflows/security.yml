@@ -33,9 +33,9 @@ on:
         default: "critical"
         type: string
       fail-on:
-        description: The "fail" strategy, only for scan-mode "dependencies". Available values are "upgradable", "patchable" or "all", default to "upgradable".
+        description: The "fail" strategy, only for scan-mode "dependencies". Available values are "upgradable", "patchable" or "all", default to "all".
         required: false
-        default: "upgradable"
+        default: "all"
         type: string
     secrets:
       github-token:
@@ -123,7 +123,7 @@ jobs:
           npm install -g snyk
           snyk auth ${{ secrets.snyk-token }}
           snyk config set disable-analytics=1
-          snyk config set org=${{ inputs.snyk-organization }}
+          snyk config set org=${{ secrets.snyk-organization }}
       - id: scan-dependencies
         name: Scan dependencies for vulnerabilities
         run: |
@@ -134,7 +134,7 @@ jobs:
             --json \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
-            --severity-threshold="${{ inputs.severity-threshold }}" 
+            --severity-threshold="${{ inputs.severity-threshold }}" \
             --fail-on="${{ inputs.fail-on }}" >> ${{runner.temp}}/report_scan-dependencies.json
       - id: summarize-report
         name: Summarize report on Github Action run
