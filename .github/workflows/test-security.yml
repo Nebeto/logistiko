@@ -12,7 +12,17 @@ defaults:
     working-directory: "/frontend-project"
    
 jobs:
+  checkout-code:
+    runs-on: ubuntu-latest
+    name: Checkout code
+    steps:
+      - id: checkout-code
+        name: Initialize code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
   test-security:
+    name: Test security.yml workflow
     uses: Nebeto/logistiko/.github/workflows/security.yml@main
     with:
       node-version: "latest"
