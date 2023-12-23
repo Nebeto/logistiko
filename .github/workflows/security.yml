@@ -77,11 +77,15 @@ jobs:
           cd ${{ inputs.working-directory }}
           snyk code test \
             -d \
-            --report \
-            --json \
+            --json-file-output="${{runner.temp}}/report_scan-code.json" \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
-            --severity-threshold="${{ inputs.severity-threshold == 'critical' && 'high' || inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
+            --severity-threshold="${{ inputs.severity-threshold == 'critical' && 'high' || inputs.severity-threshold }}"
+      - id: upload-report
+        name: report-security
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{runner.temp}}/report_scan-code.json
       - id: summarize-report
         name: Summarize report on Github Action run
         uses: actions/github-script@v7
@@ -130,12 +134,16 @@ jobs:
           cd ${{ inputs.working-directory }}
           snyk test \
             -d \
-            --report \
-            --json \
+            --json-file-output="${{runner.temp}}/report_scan-dependencies.json" \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
             --severity-threshold="${{ inputs.severity-threshold }}" \
-            --fail-on="${{ inputs.fail-on }}" >> ${{runner.temp}}/report_scan-dependencies.json
+            --fail-on="${{ inputs.fail-on }}"
+      - id: upload-report
+        name: report-security
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{runner.temp}}/report_scan-dependencies.json
       - id: summarize-report
         name: Summarize report on Github Action run
         uses: actions/github-script@v7
