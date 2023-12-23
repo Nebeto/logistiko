@@ -15,13 +15,13 @@ jobs:
       working-directory: "frontend-project"
       node-version: "latest"
       scan-mode: "all"
-      snyk-organization: ${{ vars.SNYK_ORGANIZATION }}
       snyk-project: ${{ vars.SNYK_PROJECT }}
       target: ${{ github.ref_name }}
       severity-threshold: "critical"
       fail-on: "upgradable"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
+      snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
       snyk-token: ${{ secrets.SNYK_TOKEN }}
 
             

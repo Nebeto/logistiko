@@ -18,10 +18,6 @@ on:
         required: false
         default: "all"
         type: string
-      snyk-organization:
-        description: The Snyk organization on which project is managed.
-        required: true
-        type: string
       snyk-project:
         description: The Snyk project on which reports will be uploaded.
         required: true
@@ -44,6 +40,9 @@ on:
     secrets:
       github-token:
         description: The Github token with "repository viewer" access.
+        required: true
+      snyk-organization:
+        description: The Snyk organization on which project is managed.
         required: true
       snyk-token:
         description: The Snyk token. 
@@ -71,7 +70,7 @@ jobs:
           npm install -g snyk
           snyk auth ${{ secrets.snyk-token }}
           snyk config set disable-analytics=1
-          snyk config set org=${{ inputs.snyk-organization }}
+          snyk config set org=${{ secrets.snyk-organization }}
       - id: scan-code
         name: Scan code for vulnerabilities
         run: |
@@ -82,7 +81,7 @@ jobs:
             --json \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
-            --severity-threshold="${{ inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
+            --severity-threshold="${{ inputs.severity-threshold == 'critical' && 'high' || inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
       - id: summarize-report
         name: Summarize report on Github Action run
         uses: actions/github-script@v7
