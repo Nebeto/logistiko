@@ -1,6 +1,7 @@
 name: Test security.yml workflow
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - ".github/workflows/security.yml"
