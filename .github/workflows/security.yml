@@ -3,12 +3,12 @@ name: Security
 on:
     workflow_call:
         inputs:
-            use-node-version:
+            node-version:
                 description: The nodeJS version, default to "latest".
                 required: false
                 default: "latest"
                 type: string
-            use-scan-mode:
+            scan-mode:
                 description: The selected mode, available are "code", "dependencies" or "all", default to "all".
                 required: false
                 default: "all"
@@ -28,7 +28,7 @@ on:
                 default: "low|medium|high|critical"
                 type: string
             fail-on:
-                description: The "fail" strategy, available are "upgradable", "patchable" or "all", default to "upgradable".
+                description: The "fail" strategy, only for scan-mode "dependencies". Available values are "upgradable", "patchable" or "all", default to "upgradable".
                 required: false
                 default: "upgradable"
                 type: string
@@ -44,109 +44,109 @@ on:
                 required: true
         
 jobs:
-    scan-code:
-        runs-on: ubuntu-latest
+  scan-code:
+    runs-on: ubuntu-latest
+    name: Scan code for vulnerabilities
+    if: ${{ contains(fromJSON('["all", "code"]'), inputs.scan-mode) }}
+    steps:
+      - id: checkout-code
+        name: Initialize code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.github-token }}
+      - id: setup-node
+        name: Initialize NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "npm"
+      - id: setup-snyk
+        name: Initialize Snyk CLI
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.snyk-token }}
+      - id: scan-code
         name: Scan code for vulnerabilities
-        if: ${{ contains(fromJSON('["all", "code"]'), inputs.use-scan-mode) }}
-        steps:
-            - id: checkout-code
-              name: Initialize code
-              uses: actions/checkout@v4
-              with:
-                token: ${{ secrets.github-token }}
-            - id: setup-node
-              name: Initialize NodeJS
-              uses: actions/setup-node@v4
-              with:
-                node-version: ${{ inputs.use-node-version }}
-                cache: "npm"
-            - id: setup-snyk
-              name: Initialize Snyk CLI
-              run: |
-                npm install -g snyk
-                snyk auth ${{ secrets.snyk-token }}
-            - id: scan-code
-              name: Scan code for vulnerabilities
-              run: |
-                snyk code test \
-                    -d \
-                    --report \
-                    --json \
-                    --org="${{ secrets.snyk-organization }}" \
-                    --project-name="${{ inputs.snyk-project }}" \
-                    --target-name="${{ inputs.target }}" \
-                    --severity-threshold="${{ inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
-            - id: summarize-report
-              name: Summarize report on Github Action run
-              uses: actions/github-script@v7
-              with:
-                script: |
-                    const report = require(${{runner.temp}}/report_scan-code.json)
-                    
-                    core.notice('This is a message that will also emit an annotation')
-                    core.warning('myInput was not set');
-                    core.error(`Error ${err}, action may still succeed though`);
-            - id: synchronize-report-github
-              name: Synchronize report on Github repository
-              uses: actions/github-script@v7
-              with:
-                script: |
-                    const report = require(${{runner.temp}}/report_scan-code.json)
-                    
-                    core.notice('This is a message that will also emit an annotation')
-                    core.warning('myInput was not set');
-                    core.error(`Error ${err}, action may still succeed though`);
-    scan-dependencies:
-        runs-on: ubuntu-latest
+        run: |
+          snyk code test \
+            -d \
+            --report \
+            --json \
+            --org="${{ secrets.snyk-organization }}" \
+            --project-name="${{ inputs.snyk-project }}" \
+            --target-name="${{ inputs.target }}" \
+            --severity-threshold="${{ inputs.severity-threshold }}" >> ${{runner.temp}}/report_scan-code.json
+      - id: summarize-report
+        name: Summarize report on Github Action run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = require(${{runner.temp}}/report_scan-code.json)
+            
+            core.notice('This is a message that will also emit an annotation')
+            core.warning('myInput was not set');
+            core.error(`Error ${err}, action may still succeed though`);
+      - id: synchronize-report-github
+        name: Synchronize report on Github repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = require(${{runner.temp}}/report_scan-code.json)
+            
+            core.notice('This is a message that will also emit an annotation')
+            core.warning('myInput was not set');
+            core.error(`Error ${err}, action may still succeed though`);
+  scan-dependencies:
+    runs-on: ubuntu-latest
+    name: Scan dependencies for vulnerabilities
+    if: ${{ contains(fromJSON('["all", "dependencies"]'), inputs.scan-mode) }}
+    steps:
+      - id: checkout-code
+        name: Initialize code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.github-token }}
+      - id: setup-node
+        name: Initialize NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "npm"
+      - id: setup-snyk
+        name: Initialize Snyk CLI
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.snyk-token }}
+      - id: scan-dependencies
         name: Scan dependencies for vulnerabilities
-        if: ${{ contains(fromJSON('["all", "dependencies"]'), inputs.use-scan-mode) }}
-        steps:
-            - id: checkout-code
-              name: Initialize code
-              uses: actions/checkout@v4
-              with:
-                token: ${{ secrets.github-token }}
-            - id: setup-node
-              name: Initialize NodeJS
-              uses: actions/setup-node@v4
-              with:
-                node-version: ${{ inputs.use-node-version }}
-                cache: "npm"
-            - id: setup-snyk
-              name: Initialize Snyk CLI
-              run: |
-                npm install -g snyk
-                snyk auth ${{ secrets.snyk-token }}
-            - id: scan-dependencies
-              name: Scan dependencies for vulnerabilities
-              run: |
-                snyk test \
-                    -d \
-                    --report \
-                    --json \
-                    --org="${{ secrets.snyk-organization }}" \
-                    --project-name="${{ inputs.snyk-project }}" \
-                    --target-name="${{ inputs.target }}" \
-                    --severity-threshold="${{ inputs.severity-threshold }}" 
-                    --fail-on="${{ inputs.fail-on }}" >> ${{runner.temp}}/report_scan-dependencies.json
-            - id: summarize-report
-              name: Summarize report on Github Action run
-              uses: actions/github-script@v7
-              with:
-                script: |
-                    const report = require(${{runner.temp}}/report_scan-dependencies.json)
-                    
-                    core.notice('This is a message that will also emit an annotation')
-                    core.warning('myInput was not set');
-                    core.error(`Error ${err}, action may still succeed though`);
-            - id: synchronize-report-github
-              name: Synchronize report on Github repository
-              uses: actions/github-script@v7
-              with:
-                script: |
-                    const report = require(${{runner.temp}}/report_scan-dependencies.json)
-                    
-                    core.notice('This is a message that will also emit an annotation')
-                    core.warning('myInput was not set');
-                    core.error(`Error ${err}, action may still succeed though`);
-        
+        run: |
+          snyk test \
+            -d \
+            --report \
+            --json \
+            --org="${{ secrets.snyk-organization }}" \
+            --project-name="${{ inputs.snyk-project }}" \
+            --target-name="${{ inputs.target }}" \
+            --severity-threshold="${{ inputs.severity-threshold }}" 
+            --fail-on="${{ inputs.fail-on }}" >> ${{runner.temp}}/report_scan-dependencies.json
+      - id: summarize-report
+        name: Summarize report on Github Action run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = require(${{runner.temp}}/report_scan-dependencies.json)
+            
+            core.notice('This is a message that will also emit an annotation')
+            core.warning('myInput was not set');
+            core.error(`Error ${err}, action may still succeed though`);
+      - id: synchronize-report-github
+        name: Synchronize report on Github repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = require(${{runner.temp}}/report_scan-dependencies.json)
+            
+            core.notice('This is a message that will also emit an annotation')
+            core.warning('myInput was not set');
+            core.error(`Error ${err}, action may still succeed though`);
+

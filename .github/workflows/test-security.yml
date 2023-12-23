@@ -6,20 +6,24 @@ on:
     paths:
       - ".github/workflows/security.yml"
       - ".github/workflows/test-security.yml"
-        
+
+defaults:
+  run:
+    working-directory: "/frontend-project"
+   
 jobs:
-    test-security:
-        uses: Nebeto/logistiko/.github/workflows/security.yml@main
-        with:
-          use-node-version: "latest"
-          use-scan-mode: "all"
-          snyk-project: ${{ vars.SNYK_PROJECT }}
-          target: ${{ github.ref }}
-          severity-threshold: "low|medium|high|critical"
-          fail-on: "upgradable"
-        secrets:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
-          snyk-token: ${{ secrets.SNYK_TOKEN }}
+  test-security:
+    uses: Nebeto/logistiko/.github/workflows/security.yml@main
+    with:
+      node-version: "latest"
+      scan-mode: "all"
+      snyk-project: ${{ vars.SNYK_PROJECT }}
+      target: ${{ github.ref }}
+      severity-threshold: "low|medium|high|critical"
+      fail-on: "upgradable"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
+      snyk-token: ${{ secrets.SNYK_TOKEN }}
 
             
