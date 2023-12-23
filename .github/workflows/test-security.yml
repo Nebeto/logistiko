@@ -6,16 +6,13 @@ on:
     paths:
       - ".github/workflows/security.yml"
       - ".github/workflows/test-security.yml"
-
-defaults:
-  run:
-    working-directory: "frontend-project"
    
 jobs:
   test-security:
     name: Test security.yml workflow
     uses: Nebeto/logistiko/.github/workflows/security.yml@main
     with:
+      working-directory: "frontend-project"
       node-version: "latest"
       scan-mode: "all"
       snyk-project: ${{ vars.SNYK_PROJECT }}

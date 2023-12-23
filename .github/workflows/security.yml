@@ -1,47 +1,52 @@
 name: Security
 
 on:
-    workflow_call:
-        inputs:
-            node-version:
-                description: The nodeJS version, default to "latest".
-                required: false
-                default: "latest"
-                type: string
-            scan-mode:
-                description: The selected mode, available are "code", "dependencies" or "all", default to "all".
-                required: false
-                default: "all"
-                type: string
-            snyk-project:
-                description: The Snyk project on which reports will be uploaded.
-                required: true
-                type: string
-            target:
-                description: The target identifier, like a git branch, default to "main".
-                required: false
-                default: "main"
-                type: string
-            severity-threshold:
-                description: The severity threshold, can be "low", "medium", "high", "critical" or a combination of them, default to "low|medium|high|critical"
-                required: false
-                default: "low|medium|high|critical"
-                type: string
-            fail-on:
-                description: The "fail" strategy, only for scan-mode "dependencies". Available values are "upgradable", "patchable" or "all", default to "upgradable".
-                required: false
-                default: "upgradable"
-                type: string
-        secrets:
-            github-token:
-                description: The Github token with "repository viewer" access.
-                required: true
-            snyk-organization:
-                description: The Snyk organization on which project is managed.
-                required: true
-            snyk-token:
-                description: The Snyk token. 
-                required: true
+  workflow_call:
+    inputs:
+      working-directory:
+        description: The working directory, default to ".".
+        required: false
+        default: "."
+        type: string
+      node-version:
+        description: The nodeJS version, default to "latest".
+        required: false
+        default: "latest"
+        type: string
+      scan-mode:
+        description: The selected mode, available are "code", "dependencies" or "all", default to "all".
+        required: false
+        default: "all"
+        type: string
+      snyk-project:
+        description: The Snyk project on which reports will be uploaded.
+        required: true
+        type: string
+      target:
+        description: The target identifier, like a git branch, default to "main".
+        required: false
+        default: "main"
+        type: string
+      severity-threshold:
+        description: The severity threshold, can be "low", "medium", "high", "critical" or a combination of them, default to "low|medium|high|critical"
+        required: false
+        default: "low|medium|high|critical"
+        type: string
+      fail-on:
+        description: The "fail" strategy, only for scan-mode "dependencies". Available values are "upgradable", "patchable" or "all", default to "upgradable".
+        required: false
+        default: "upgradable"
+        type: string
+    secrets:
+      github-token:
+        description: The Github token with "repository viewer" access.
+        required: true
+      snyk-organization:
+        description: The Snyk organization on which project is managed.
+        required: true
+      snyk-token:
+        description: The Snyk token. 
+        required: true
         
 jobs:
   scan-code:
@@ -59,7 +64,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          cache: "npm"
       - id: setup-snyk
         name: Initialize Snyk CLI
         run: |
@@ -68,6 +72,7 @@ jobs:
       - id: scan-code
         name: Scan code for vulnerabilities
         run: |
+          cd ${{ inputs.working-directory }}
           snyk code test \
             -d \
             --report \
@@ -111,7 +116,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          cache: "npm"
       - id: setup-snyk
         name: Initialize Snyk CLI
         run: |
@@ -120,6 +124,7 @@ jobs:
       - id: scan-dependencies
         name: Scan dependencies for vulnerabilities
         run: |
+          cd ${{ inputs.working-directory }}
           snyk test \
             -d \
             --report \
