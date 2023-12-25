@@ -156,12 +156,12 @@ jobs:
               count[vulnerability.severity] += 1
             }
 
-            core.notice(`{report.dependencyCount} dependencies analyzed. {report.summary}.`)
+            core.notice(`${report.dependencyCount} dependencies analyzed. ${report.summary}.`)
 
             Object.keys(count).forEach(
               severity => {
                 if(count[severity] > 0) {
-                  core[output[severity]](`{count[severity]} dependencies marked as {severity} vulnerable.`)
+                  core[output[severity]](`${count[severity]} dependencies marked as ${severity} vulnerable.`)
                 }
               })
       - id: synchronize-report-github
@@ -206,7 +206,7 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     summary: report.summary,
-                    description: `Powered by snyk.io for organization "{report.org}", project "{report.projectName}".`,
+                    description: `Powered by snyk.io for organization "${report.org}", project "${report.projectName}".`,
                     severity,
                     vulnerabilities: vulnerabilities[severity],
                     cwe_ids: cweIds[vulnerability.severity]
