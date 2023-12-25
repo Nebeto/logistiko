@@ -82,9 +82,10 @@ jobs:
             --target-name="${{ inputs.target }}" \
             --severity-threshold="${{ inputs.severity-threshold == 'critical' && 'high' || inputs.severity-threshold }}"
       - id: upload-report
-        name: report-security
+        name: Upload report on Github Action run
         uses: actions/upload-artifact@v4
         with:
+          name: report-security
           path: ${{runner.temp}}/report_scan-code.json
       - id: summarize-report
         name: Summarize report on Github Action run
@@ -139,29 +140,94 @@ jobs:
             --target-name="${{ inputs.target }}" \
             --severity-threshold="${{ inputs.severity-threshold }}" \
             --fail-on="${{ inputs.fail-on }}"
+          ((ls ${{runner.temp}}/report_scan-dependencies.json >> /dev/null 2>&1 && echo "hasReport=1") || echo "hasReport=0") >> "$GITHUB_OUTPUT"
       - id: upload-report
-        name: report-security
+        name: Upload report on Github Action run
+        if: ${{ steps.scan-dependencies.outputs.hasReport == "1" }}
         uses: actions/upload-artifact@v4
         with:
+          name: report-security
           path: ${{runner.temp}}/report_scan-dependencies.json
       - id: summarize-report
         name: Summarize report on Github Action run
+        if: ${{ steps.scan-dependencies.outputs.hasReport == "1" }}
         uses: actions/github-script@v7
         with:
           script: |
+            const count = {
+                critical: 0,
+                high: 0,
+                medium: 0,
+                low: 0
+              }
+
+            const output = {
+              critical: 'error',
+              high: 'error',
+              medium: 'warning',
+              low: 'notice'
+            }
+
             const report = require(${{runner.temp}}/report_scan-dependencies.json)
-            
-            core.notice('This is a message that will also emit an annotation')
-            core.warning('myInput was not set');
-            core.error(`Error ${err}, action may still succeed though`);
+
+            for(const vulnerability of report.vulnerabilities) {
+              count[vulnerability.severity] += 1
+            }
+
+            core.info(`{report.dependencyCount} dependencies analyzed. {report.summary}.`)
+
+            Object.keys(count).forEach(
+              severity => {
+                if(count[severity] > 0) {
+                  core[output[severity]](`{count[severity]} dependencies marked as {severity} vulnerable.`)
+                }
+              })
       - id: synchronize-report-github
         name: Synchronize report on Github repository
+        if: ${{ steps.scan-dependencies.outputs.hasReport == "1" }}
         uses: actions/github-script@v7
         with:
           script: |
-            const report = require(${{runner.temp}}/report_scan-dependencies.json)
-            
-            core.notice('This is a message that will also emit an annotation')
-            core.warning('myInput was not set');
-            core.error(`Error ${err}, action may still succeed though`);
+            const vulnerabilities = {
+                critical: [],
+                high: [],
+                medium: [],
+                low: []
+              }
 
+            const cweIds = {
+                critical: new Set(),
+                high: new Set(),
+                medium: new Set(),
+                low: new Set()
+              }
+
+            const report = require(${{runner.temp}}/report_scan-dependencies.json)
+
+            for(const vulnerabilty of report.vulnerabilities) {
+              vulnerabilities[vulnerability.severity].push({
+                  package: {
+                    name: vulnerability.packageName,
+                    ecosystem: vulnerability.packageManager
+                  }
+                })
+
+              for(const cweId of vulnerability.identifiers.CWE) {
+                  cweIds[vulnerability.severity].add(cweId)
+              }
+            }
+
+            Object.keys(vulnerabilities).forEach(
+              severity => {
+                if(vulnerabilities[severity].length > 0) {
+                  github.rest.securityAdvisories.createPrivateVulnerabilityReport({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    summary: report.summary,
+                    description: `Powered by snyk.io for organization "{report.org}", project "{report.projectName}".`,
+                    severity,
+                    vulnerabilities: vulnerabilities[severity],
+                    cwe_ids: cweIds[vulnerability.severity]
+                  })
+                }
+              })
