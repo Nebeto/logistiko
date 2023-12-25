@@ -150,7 +150,7 @@ jobs:
               low: 'notice'
             }
 
-            const report = require(${{runner.temp}}/report_scan-dependencies.json)
+            const report = require("${{runner.temp}}/report_scan-dependencies.json")
 
             for(const vulnerability of report.vulnerabilities) {
               count[vulnerability.severity] += 1
@@ -184,7 +184,7 @@ jobs:
                 low: new Set()
               }
 
-            const report = require(${{runner.temp}}/report_scan-dependencies.json)
+            const report = require("${{runner.temp}}/report_scan-dependencies.json")
 
             for(const vulnerabilty of report.vulnerabilities) {
               vulnerabilities[vulnerability.severity].push({
