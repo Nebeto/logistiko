@@ -156,7 +156,7 @@ jobs:
               count[vulnerability.severity] += 1
             }
 
-            core.info(`{report.dependencyCount} dependencies analyzed. {report.summary}.`)
+            core.notice(`{report.dependencyCount} dependencies analyzed. {report.summary}.`)
 
             Object.keys(count).forEach(
               severity => {
