@@ -46,6 +46,13 @@ In order to use these Github Actions reusable workflows, you will need to :
 
 ## Reusable worlflows
 
+### quality.yml
+
+Scan your code about potential quality issues.
+Powered by the product [ESLint](https://eslint.org).
+
+[![Test quality.yml workflow](https://github.com/Nebeto/logistiko/actions/workflows/test-quality.yml/badge.svg)](https://github.com/Nebeto/logistiko/actions/workflows/test-quality.yml)
+
 ### security.yml
 
 Scan your code and dependencies about potential vulnerabilities, classified by **low**, **medium**, **high**, or **critical** threats.

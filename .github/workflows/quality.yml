@@ -24,40 +24,40 @@ on:
         required: true
             
 jobs:
-    scan-code:
-        runs-on: ubuntu-latest
-        name: Scan code for quality issues
-        steps:
-            - id: checkout-code
-              name: Initialize code
-              uses: actions/checkout@v4
-              with:
-                token: ${{ secrets.github-token }}
-            - id: setup-node
-              name: Initialize NodeJS
-              uses: actions/setup-node@v4
-              with:
-                node-version: ${{ inputs.node-version }}
-            - id: setup-eslint
-              name: Initialize eslint
-              run: |
-                npm install -g eslint
-                eslint --version --env-info
-            - id: scan-code
-              name: Scan code for quality issues
-              run: |
-                eslint \
-                    --debug \
-                    --color \
-                    --max-warnings="${{ inputs.max-warnings }}" \
-                    --output-file="${{runner.temp}}/report_scan-code.json" \
-                    --format=json \
-                    .
-                ((ls ${{runner.temp}}/report_scan-code.json >> /dev/null 2>&1 && echo "hasReport=1") || echo "hasReport=0") >> "$GITHUB_OUTPUT"
-            - id: upload-report
-              name: Upload report on Github Action run
-              if: ${{ steps.scan-code.outputs.hasReport == '1' }}
-              uses: actions/upload-artifact@v4
-              with:
-                name: report-quality
-                path: ${{runner.temp}}/report_scan-code.json
+  scan-code:
+    runs-on: ubuntu-latest
+    name: Scan code for quality issues
+    steps:
+        - id: checkout-code
+          name: Initialize code
+          uses: actions/checkout@v4
+          with:
+            token: ${{ secrets.github-token }}
+        - id: setup-node
+          name: Initialize NodeJS
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{ inputs.node-version }}
+        - id: setup-eslint
+          name: Initialize eslint
+          run: |
+            npm install -g eslint
+            eslint --version --env-info
+        - id: scan-code
+          name: Scan code for quality issues
+          run: |
+            eslint \
+                --debug \
+                --color \
+                --max-warnings="${{ inputs.max-warnings }}" \
+                --output-file="${{runner.temp}}/report_scan-code.json" \
+                --format=json \
+                .
+            ((ls ${{runner.temp}}/report_scan-code.json >> /dev/null 2>&1 && echo "hasReport=1") || echo "hasReport=0") >> "$GITHUB_OUTPUT"
+        - id: upload-report
+          name: Upload report on Github Action run
+          if: ${{ steps.scan-code.outputs.hasReport == '1' }}
+          uses: actions/upload-artifact@v4
+          with:
+            name: report-quality
+            path: ${{runner.temp}}/report_scan-code.json

@@ -16,7 +16,7 @@ jobs:
     with:
       working-directory: "frontend-project"
       node-version: "latest"
-      max-warning: -1
+      max-warnings: -1
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
