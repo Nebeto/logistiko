@@ -38,11 +38,13 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version: ${{ inputs.node-version }}
-        - id: setup-eslint
-          name: Initialize eslint
+            cache: npm
+            cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+        - id: setup-dependencies
+          name: Initialize dependencies
           run: |
-            npm install -g eslint
-            eslint --version --env-info
+            cd ${{ inputs.working-directory }}
+            npm install
         - id: scan-code
           name: Scan code for quality issues
           run: |
