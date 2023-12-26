@@ -46,6 +46,7 @@ jobs:
         - id: scan-code
           name: Scan code for quality issues
           run: |
+            cd ${{ inputs.working-directory }}
             eslint \
                 --debug \
                 --color \
