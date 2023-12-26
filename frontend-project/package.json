@@ -13,6 +13,22 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.19.2",
     "vite": "^5.0.8"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended",
+      "@vue/eslint-config-prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": "latest"
+    },
+    "ignorePatterns": [
+      "**/dev-dist/**"
+    ]
   }
 }
