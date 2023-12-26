@@ -47,3 +47,49 @@ In order to use these Github Actions reusable workflows, you will need to :
 ## Reusable worlflows
 
 ### security.yml
+
+Scan your code and dependencies about potential vulnerabilities, classified by **low**, **medium**, **high**, or **critical** threats.
+Powered by the product [Snyk.io](https://snyk.io).
+
+[![Test security.yml workflow](https://github.com/Nebeto/logistiko/actions/workflows/test-security.yml/badge.svg)](https://github.com/Nebeto/logistiko/actions/workflows/test-security.yml)
+
+#### Integration sample
+
+```yaml
+jobs:
+  job-1:
+    ...
+  job-2:
+    ...
+  security:
+    name: Scan my code and dependencies
+    uses: Nebeto/logistiko/.github/workflows/security.yml@main
+    with:
+      working-directory: "frontend-project"
+      node-version: "latest"
+      scan-mode: "all"
+      snyk-project: ${{ vars.SNYK_PROJECT }}
+      target: ${{ github.ref_name }}
+      severity-threshold: "critical"
+      fail-on: "all"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
+      snyk-token: ${{ secrets.SNYK_TOKEN }}
+```
+
+#### Configuration
+
+* **working-directory** : the directory containing the code sources and dependencies to scan, default to `.`;
+* **node-version** : the version of NodeJs used, default to `latest`;
+* **scan-mode** : the desired scanning mode, can be `code` (only scan code sources),  `dependencies` (only scan dependencies), or `all`, default to `all` ;
+* **snyk-project** : a given name, choose one unique and explicit, **required** ;
+* **target** : can be a branch name (like `main`), a tag (like `v1`), default to `main` ;
+* **severity-threshold** : the severity threshold, can be `low`, `medium` (includes `low`), `high` (includes `medium`) or `critical` (includes `medium`), default to `critical` ;
+* **fail-on** : for `dependencies` scan-mode only, explicit the fail strategy, can be `all`, `upgradable` or `patchable`, default to `all`.
+
+#### Secrets
+
+* **github-token** : the Github token used, can be the default one provided at the execution of your workflow or, as recommended by Github, a custom generated one with at least these rights `TODO`;
+* **snyk-organization** : the Snyk organization, can be found from your organization settings > "Organization ID" ;
+* **snyk-token** : the Snyk token, can be found from [your personnal account](https://app.snyk.io/account) > "Auth Token".
