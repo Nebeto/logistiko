@@ -69,43 +69,52 @@ jobs:
           uses: actions/github-script@v7
           with:
             script: |
-              const severities = {
-                2: 'high',
-                1: 'medium'
-              }
-
-              const count = {
-                  2: 0,
-                  1: 0
-                }
-
-              const output = {
-                2: 'error',
-                1: 'warning'
-              }
-
+              const styles = require("ansi-styles")
               const report = require("${{runner.temp}}/report_scan-code.json")
 
+              const result = {
+                2: {
+                  displayName: 'high',
+                  color: 'red',
+                  output: 'error',
+                  items: []
+                },
+                1: {
+                  displayName: 'medium',
+                  color: 'yellow',
+                  output: 'warning',
+                  items: []
+                }
+              }
+            
               for(const file of report) {
                 for(const issue of file.messages) {
-                  count[issue.severity] += 1
-                  core[output[issue.severity]](
-                    issue.message,
-                    { 
+                  result[issue.severity].count += 1
+                  result[issue.severity].items.push({
+                    message: issue.message,
+                    params: { 
                       file: file.filePath,
                       startLine: issue.line,
                       endLine: issue.endLine,
                       startColumn: issue.column,
                       endColumn: issue.endColumn
-                    })
+                    }
+                  })
                 }
               }
 
-              core.notice(`${report.length} files analyzed.`)
+              const message = `${report.length} files analyzed.`
 
-              Object.keys(count).forEach(
+              Object.keys(result).forEach(
                 severity => {
-                  if(count[severity] > 0) {
-                    core[output[severity]](`${count[severity]} issues marked as ${severities[severity]}.`)
+                  if(result[severity].items.length > 0) {
+                    message += ` ${styles[result[severity].color].open}${result[severity].items.length} issues marked as "${result[severity].displayName}"${styles[result[severity].color].close}.`
+                  }
+
+                  for(const item of result[severity].items) {
+                    core[result[severity].output](item.message, items.params)
                   }
                 })
+
+              core.notice(message)
+
