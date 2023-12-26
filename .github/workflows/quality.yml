@@ -88,8 +88,8 @@ jobs:
 
               for(const file of report) {
                 for(const issue of file.messages) {
-                  count[file.severity] += 1
-                  core[output[file.severity]](issue.message, file.filePath, issue.line, issue.endLine, issue.column, issue.endColumn)
+                  count[issue.severity] += 1
+                  core[output[issue.severity]](issue.message, file.filePath, issue.line, issue.endLine, issue.column, issue.endColumn)
                 }
               }
 
