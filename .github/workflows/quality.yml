@@ -99,12 +99,12 @@ jobs:
                 }
               }
 
-              const message = `${report.length} files analyzed.`
+              let summary = `${report.length} files analyzed.`
 
               Object.keys(result).forEach(
                 severity => {
                   if(result[severity].items.length > 0) {
-                    message += ` ${result[severity].items.length} issues marked as "${result[severity].displayName}".`
+                    summary += ` ${result[severity].items.length} issues marked as "${result[severity].displayName}".`
                   }
 
                   for(const item of result[severity].items) {
@@ -112,5 +112,5 @@ jobs:
                   }
                 })
 
-              core.notice(message)
+              core.notice(summary)
 
