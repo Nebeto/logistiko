@@ -1,0 +1,23 @@
+name: Test quality.yml workflow
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 6 * * 1'
+  push:
+    paths:
+      - ".github/workflows/quality.yml"
+      - ".github/workflows/test-quality.yml"
+   
+jobs:
+  test-quality:
+    name: Test quality.yml workflow
+    uses: Nebeto/logistiko/.github/workflows/quality.yml@main
+    with:
+      working-directory: "frontend-project"
+      node-version: "latest"
+      max-warning: -1
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+            

@@ -1,22 +1,27 @@
 name: Quality
 
 on:
-    workflow_call:
-        inputs:
-            use-node-version:
-                description: The nodeJS version, default to "latest".
-                required: false
-                default: "latest"
-                type: string
-            max-warnings:
-                description: The number of warning issues accepted before being considered as a failure.
-                required: false
-                default: -1
-                type: number
-        secrets:
-            github-token:
-                description: The Github token with "repository viewer" access.
-                required: true
+  workflow_call:
+    inputs:
+      working-directory:
+        description: The working directory, default to ".".
+        required: false
+        default: "."
+        type: string
+      node-version:
+        description: The nodeJS version, default to "latest".
+        required: false
+        default: "latest"
+        type: string
+      max-warnings:
+        description: The number of warning issues accepted before being considered as a failure.
+        required: false
+        default: -1
+        type: number
+    secrets:
+      github-token:
+        description: The Github token with "repository viewer" access.
+        required: true
             
 jobs:
     scan-code:
@@ -32,8 +37,7 @@ jobs:
               name: Initialize NodeJS
               uses: actions/setup-node@v4
               with:
-                node-version: ${{ inputs.use-node-version }}
-                cache: "npm"
+                node-version: ${{ inputs.node-version }}
             - id: setup-eslint
               name: Initialize eslint
               run: |
@@ -46,4 +50,14 @@ jobs:
                     --debug \
                     --color \
                     --max-warnings="${{ inputs.max-warnings }}" \
-                    . >> $GITHUB_STEP_SUMMARY
+                    --output-file="${{runner.temp}}/report_scan-code.json" \
+                    --format=json \
+                    .
+                ((ls ${{runner.temp}}/report_scan-code.json >> /dev/null 2>&1 && echo "hasReport=1") || echo "hasReport=0") >> "$GITHUB_OUTPUT"
+            - id: upload-report
+              name: Upload report on Github Action run
+              if: ${{ steps.scan-code.outputs.hasReport == '1' }}
+              uses: actions/upload-artifact@v4
+              with:
+                name: report-quality
+                path: ${{runner.temp}}/report_scan-code.json
