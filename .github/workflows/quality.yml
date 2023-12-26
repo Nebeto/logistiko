@@ -47,13 +47,12 @@ jobs:
           name: Scan code for quality issues
           run: |
             cd ${{ inputs.working-directory }}
-            eslint \
+            npm run lint -- \
                 --debug \
                 --color \
                 --max-warnings="${{ inputs.max-warnings }}" \
                 --output-file="${{runner.temp}}/report_scan-code.json" \
-                --format=json \
-                .
+                --format=json
             ((ls ${{runner.temp}}/report_scan-code.json >> /dev/null 2>&1 && echo "hasReport=1") || echo "hasReport=0") >> "$GITHUB_OUTPUT"
         - id: upload-report
           name: Upload report on Github Action run
