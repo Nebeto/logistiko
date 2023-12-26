@@ -108,7 +108,7 @@ jobs:
                   }
 
                   for(const item of result[severity].items) {
-                    core[result[severity].output](item.message, items.params)
+                    core[result[severity].output](item.message, item.params)
                   }
                 })
 
