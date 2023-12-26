@@ -63,3 +63,41 @@ jobs:
           with:
             name: report-quality
             path: ${{runner.temp}}/report_scan-code.json
+        - id: summarize-report
+          name: Summarize report on Github Action run
+          if: ${{ steps.scan-code.outputs.hasReport == '1' }}
+          uses: actions/github-script@v7
+          with:
+            script: |
+              const severities = {
+                2: 'high',
+                1: 'medium'
+              }
+
+              const count = {
+                  2: 0,
+                  1: 0
+                }
+
+              const output = {
+                2: 'error',
+                1: 'warning'
+              }
+
+              const report = require("${{runner.temp}}/report_scan-code.json")
+
+              for(const file of report) {
+                for(const issue of file.messages) {
+                  count[file.severity] += 1
+                  core[output[file.severity]](issue.message, file.filePath, issue.line, issue.endLine, issue.column, issue.endColumn)
+                }
+              }
+
+              core.notice(`${report.length} files analyzed.`)
+
+              Object.keys(count).forEach(
+                severity => {
+                  if(count[severity] > 0) {
+                    core[output[severity]](`${count[severity]} issues marked as ${severities[severity]}.`)
+                  }
+                })
