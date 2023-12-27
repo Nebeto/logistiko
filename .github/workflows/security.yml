@@ -188,7 +188,7 @@ jobs:
                   high: [],
                   medium: [],
                   low: []
-                }
+                },
                 cweIds: {
                   critical: new Set(),
                   high: new Set(),
