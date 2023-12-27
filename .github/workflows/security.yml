@@ -64,10 +64,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+      - id: setup-dependencies
+        name: Initialize dependencies
+        run: |
+          cd ${{ inputs.working-directory }}
+          npm install
       - id: setup-snyk
         name: Initialize Snyk CLI
         run: |
-          npm install -g snyk
+          cd ${{ inputs.working-directory }}
           snyk auth ${{ secrets.snyk-token }}
           snyk config set disable-analytics=1
           snyk config set org=${{ secrets.snyk-organization }}
@@ -75,7 +82,7 @@ jobs:
         name: Scan code for vulnerabilities
         run: |
           cd ${{ inputs.working-directory }}
-          snyk code test \
+          npm run sec:code -- \
             -d \
             --json-file-output="${{runner.temp}}/report_scan-code.json" \
             --project-name="${{ inputs.snyk-project }}" \
@@ -104,10 +111,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+      - id: setup-dependencies
+        name: Initialize dependencies
+        run: |
+          cd ${{ inputs.working-directory }}
+          npm install
       - id: setup-snyk
         name: Initialize Snyk CLI
         run: |
-          npm install -g snyk
+          cd ${{ inputs.working-directory }}
           snyk auth ${{ secrets.snyk-token }}
           snyk config set disable-analytics=1
           snyk config set org=${{ secrets.snyk-organization }}
@@ -115,7 +129,7 @@ jobs:
         name: Scan dependencies for vulnerabilities
         run: |
           cd ${{ inputs.working-directory }}
-          snyk test \
+          npm run sec:dependencies -- \
             -d \
             --json-file-output="${{runner.temp}}/report_scan-dependencies.json" \
             --project-name="${{ inputs.snyk-project }}" \

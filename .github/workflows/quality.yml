@@ -49,7 +49,7 @@ jobs:
           name: Scan code for quality issues
           run: |
             cd ${{ inputs.working-directory }}
-            npm run lint -- \
+            npm run qa:lint -- \
                 --debug \
                 --color \
                 --max-warnings="${{ inputs.max-warnings }}" \
