@@ -101,16 +101,15 @@ jobs:
 
               let summary = `${report.length} files analyzed.`
 
-              Object.keys(result).forEach(
-                severity => {
-                  if(result[severity].items.length > 0) {
-                    summary += ` ${result[severity].items.length} issues marked as "${result[severity].displayName}".`
-                  }
+              for(const severity in result) {
+                if(result[severity].items.length > 0) {
+                  summary += ` ${result[severity].items.length} issues marked as "${result[severity].displayName}".`
 
                   for(const item of result[severity].items) {
                     core[result[severity].output](item.message, item.params)
                   }
-                })
+                }
+              }
 
               core.notice(summary)
 

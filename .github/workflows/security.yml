@@ -136,58 +136,69 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const count = {
-                critical: 0,
-                high: 0,
-                medium: 0,
-                low: 0
-              }
-
-            const output = {
-              critical: 'error',
-              high: 'error',
-              medium: 'warning',
-              low: 'notice'
-            }
-
             const report = require("${{runner.temp}}/report_scan-dependencies.json")
 
+            const result = {
+                critical: {
+                  displayName: 'critical',
+                  output: 'error',
+                  items: []
+                },
+                high: {
+                  displayName: 'high',
+                  output: 'error',
+                  items: []
+                },
+                medium: {
+                  displayName: 'medium',
+                  output: 'warning',
+                  items: []
+                },
+                low: {
+                  displayName: 'low',
+                  output: 'notice',
+                  items: []
+                }
+              }
+
             for(const vulnerability of report.vulnerabilities) {
-              count[vulnerability.severity] += 1
+              result[vulnerability.severity].items.push(vulnerability)
             }
 
-            core.notice(`${report.dependencyCount} dependencies analyzed. ${report.summary}.`)
+            let summary = `${report.dependencyCount} dependencies analyzed. ${report.summary}.`
 
-            Object.keys(count).forEach(
-              severity => {
-                if(count[severity] > 0) {
-                  core[output[severity]](`${count[severity]} dependencies marked as ${severity} vulnerable.`)
-                }
-              })
+            for(const severity in result) {
+              if(result[severity].items.length > 0) {
+                summary += ` ${result[severity].items.length} dependencies marked as "${result[severity].displayName}".`
+              }
+            }
+
+            core.notice(summary)
       - id: synchronize-report-github
         name: Synchronize report on Github repository
         if: ${{ steps.scan-dependencies.outputs.hasReport == '1' }}
         uses: actions/github-script@v7
         with:
           script: |
-            const vulnerabilities = {
-                critical: [],
-                high: [],
-                medium: [],
-                low: []
-              }
-
-            const cweIds = {
-                critical: new Set(),
-                high: new Set(),
-                medium: new Set(),
-                low: new Set()
-              }
-
             const report = require("${{runner.temp}}/report_scan-dependencies.json")
 
+            const result = {
+                vulnerabilities: {
+                  critical: [],
+                  high: [],
+                  medium: [],
+                  low: []
+                }
+                cweIds: {
+                  critical: new Set(),
+                  high: new Set(),
+                  medium: new Set(),
+                  low: new Set()
+                }
+              }
+
             for(const vulnerabilty of report.vulnerabilities) {
-              vulnerabilities[vulnerability.severity].push({
+              result.vulnerabilities[vulnerability.severity].push({
                   package: {
                     name: vulnerability.packageName,
                     ecosystem: vulnerability.packageManager
@@ -195,21 +206,20 @@ jobs:
                 })
 
               for(const cweId of vulnerability.identifiers.CWE) {
-                  cweIds[vulnerability.severity].add(cweId)
+                  result.cweIds[vulnerability.severity].add(cweId)
               }
             }
 
-            Object.keys(vulnerabilities).forEach(
-              severity => {
-                if(vulnerabilities[severity].length > 0) {
-                  github.rest.securityAdvisories.createPrivateVulnerabilityReport({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    summary: report.summary,
-                    description: `Powered by snyk.io for organization "${report.org}", project "${report.projectName}".`,
-                    severity,
-                    vulnerabilities: vulnerabilities[severity],
-                    cwe_ids: cweIds[vulnerability.severity]
-                  })
-                }
-              })
+            for(const severity in result.vulnerabilities) {
+              if(result.vulnerabilities[severity].length > 0) {
+                github.rest.securityAdvisories.createPrivateVulnerabilityReport({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  summary: report.summary,
+                  description: `Powered by Snyk.io for organization "${report.org}", project "${report.projectName}".`,
+                  severity,
+                  vulnerabilities: result.vulnerabilities[severity],
+                  cwe_ids: result.cweIds[severity]
+                })
+              }
+            }
