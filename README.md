@@ -53,6 +53,51 @@ Powered by the product [ESLint](https://eslint.org).
 
 [![Test quality.yml workflow](https://github.com/Nebeto/logistiko/actions/workflows/test-quality.yml/badge.svg)](https://github.com/Nebeto/logistiko/actions/workflows/test-quality.yml)
 
+#### Setup
+
+1. Install as a development dependency, the ESLint CLI :
+
+```shell
+npm install --save-dev eslint # and @vue/eslint-config-prettier eslint-plugin-vue due to my project topology
+```
+
+2. Add this entrypoint under the `scripts` property of your `package.json` :
+
+```json
+"scripts": {
+    "qa:code": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs"
+}
+```
+
+3. Use the `quality.yml` reusable workflow in your workflow :
+
+```yaml
+jobs:
+  job-1:
+    ...
+  job-2:
+    ...
+  quality:
+    name: Scan my code
+    uses: Nebeto/logistiko/.github/workflows/quality.yml@main
+    with:
+      working-directory: "frontend-project"
+      node-version: "latest"
+      max-warnings: -1
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+#### Configuration
+
+* **working-directory** : the directory containing the code sources and dependencies to scan, default to `.`;
+* **node-version** : the version of NodeJs used, default to `latest`;
+* **max-warnings** : the number of accepted warnings before considering the check as a failure, can be a number greater than `0` or `-1` to disable it, default to `-1` ;
+
+#### Secrets
+
+* **github-token** : the Github token used, can be the default one provided at the execution of your workflow or, as recommended by Github, a custom generated one with at least these rights `TODO`;
+
 ### security.yml
 
 Scan your code and dependencies about potential vulnerabilities, classified by **low**, **medium**, **high**, or **critical** threats.
@@ -60,7 +105,24 @@ Powered by the product [Snyk.io](https://snyk.io).
 
 [![Test security.yml workflow](https://github.com/Nebeto/logistiko/actions/workflows/test-security.yml/badge.svg)](https://github.com/Nebeto/logistiko/actions/workflows/test-security.yml)
 
-#### Integration sample
+#### Setup
+
+1. Install as a development dependency, the Snyk CLI :
+
+```shell
+npm install --save-dev snyk
+```
+
+2. Add these entrypoints under the `scripts` property of your `package.json` :
+
+```json
+"scripts": {
+    "sec:code": "snyk code test",
+    "sec:dependencies": "snyk test"
+}
+```
+
+3. Use the `security.yml` reusable workflow in your workflow :
 
 ```yaml
 jobs:

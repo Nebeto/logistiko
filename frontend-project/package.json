@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "qa:lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs",
+    "qa:code": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs",
     "sec:code": "snyk code test",
     "sec:dependencies": "snyk test"
   },
