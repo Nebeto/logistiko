@@ -71,20 +71,16 @@ jobs:
         run: |
           cd ${{ inputs.working-directory }}
           npm install
-      - id: setup-snyk
-        name: Initialize Snyk CLI
-        run: |
-          cd ${{ inputs.working-directory }}
-          snyk auth ${{ secrets.snyk-token }}
-          snyk config set disable-analytics=1
-          snyk config set org=${{ secrets.snyk-organization }}
       - id: scan-code
         name: Scan code for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.snyk-token }}
         run: |
           cd ${{ inputs.working-directory }}
           npm run sec:code -- \
             -d \
             --json-file-output="${{runner.temp}}/report_scan-code.json" \
+            --org="${{ secrets.snyk-organization }}" \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
             --severity-threshold="${{ inputs.severity-threshold == 'critical' && 'high' || inputs.severity-threshold }}"
@@ -118,20 +114,16 @@ jobs:
         run: |
           cd ${{ inputs.working-directory }}
           npm install
-      - id: setup-snyk
-        name: Initialize Snyk CLI
-        run: |
-          cd ${{ inputs.working-directory }}
-          snyk auth ${{ secrets.snyk-token }}
-          snyk config set disable-analytics=1
-          snyk config set org=${{ secrets.snyk-organization }}
       - id: scan-dependencies
         name: Scan dependencies for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.snyk-token }}
         run: |
           cd ${{ inputs.working-directory }}
           npm run sec:dependencies -- \
             -d \
             --json-file-output="${{runner.temp}}/report_scan-dependencies.json" \
+            --org="${{ secrets.snyk-organization }}" \
             --project-name="${{ inputs.snyk-project }}" \
             --target-name="${{ inputs.target }}" \
             --severity-threshold="${{ inputs.severity-threshold }}" \
