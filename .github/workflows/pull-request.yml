@@ -37,7 +37,7 @@ jobs:
                 ci: "ci/cd"
               }
 
-              const regexp = /(?<type>\w+)\/?(?<ticketId>[\w-_]+)?\/(?<description>[\w-]+)/gi
+              const regexp = /^(?<type>\w+)\/?(?<ticketId>[\w\-_]+)?\/(?<description>[\w\-]+)$/gi
               const result = "${{ inputs.target }}".matchAll(regexp)
 
               const type = result.groups.type
