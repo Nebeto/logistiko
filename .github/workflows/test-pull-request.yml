@@ -1,0 +1,25 @@
+name: Test pull-request.yml workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "feat/**"
+      - "fix/**"
+      - "docs/**"
+      - "chore/**"
+      - "test/**"
+      - "refactor/**"
+      - "ci/**"
+   
+jobs:
+  test-pull-request:
+    name: Test pull-request.yml workflow
+    uses: Nebeto/logistiko/.github/workflows/pull-request.yml@main
+    with:
+      target: ${{ github.ref_name }}
+      pattern: "{type}/{ticket-id}/{description}"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+            
