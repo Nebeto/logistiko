@@ -38,12 +38,13 @@ jobs:
             retries: 3
             script: |
               const pullRequests = await github.paginate(
-                  github.rest.pulls.list({
+                  github.rest.pulls.list,
+                  {
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     head: context.ref,
                     base: "${{ github.event.repository.default_branch }}"
-                  })
+                  }
                 )
 
               console.log(pullRequests, pullRequests.length)
