@@ -38,7 +38,7 @@ jobs:
               }
 
               const regexp = /(?<type>\w+)\/?(?<ticketId>[\w-_]+)?\/(?<description>[\w-]+)/gi
-              const result = ${{ inputs.target }}.matchAll(regexp)
+              const result = "${{ inputs.target }}".matchAll(regexp)
 
               const type = result.groups.type
               const ticketId = result.groups.ticketId
