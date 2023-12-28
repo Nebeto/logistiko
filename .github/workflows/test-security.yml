@@ -22,7 +22,7 @@ jobs:
       severity-threshold: "critical"
       fail-on: "all"
     secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      github-token: ${{ secrets.LOGISTIKO_GITHUB_TOKEN }}
       snyk-organization: ${{ secrets.SNYK_ORGANIZATION }}
       snyk-token: ${{ secrets.SNYK_TOKEN }}
 
