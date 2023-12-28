@@ -44,7 +44,9 @@ jobs:
                     head: context.ref,
                     base: "${{ github.event.repository.default_branch }}"
                   })
-                ) 
+                )
+
+              console.log(pullRequests, pullRequests.length)
 
               return {
                 notExists: pullRequests.length === 0
