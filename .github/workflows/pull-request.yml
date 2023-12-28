@@ -1,0 +1,74 @@
+name: Pull Request
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: The branch on which actual developments are in progress.
+        required: true
+        type: string
+    secrets:
+      github-token:
+        description: The Github token with "repository viewer" access.
+        required: true
+            
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    name: Create a draft pull request
+    steps:
+        - id: checkout-code
+          name: Initialize code
+          uses: actions/checkout@v4
+          with:
+            token: ${{ secrets.github-token }}
+        - id: create-pull-request
+          name: Create a draft pull request on Github
+          uses: actions/github-script@v7
+          with:
+            script: |
+              const labels = {
+                feat: ["enhancement"],
+                fix: ["bug"],
+                docs: ["documentation"],
+                chore: ["configuration"],
+                test: ["enhancement", "enhancement:minor"],
+                refactor: ["enhancement", "enhancement:minor"],
+                ci: "ci/cd"
+              }
+
+              const regexp = /(?<type>\w+)\/?(?<ticketId>[\w-_]+)?\/(?<description>[\w-]+)/gi
+              const result = ${{ inputs.target }}.matchAll(regexp)
+
+              const type = result.groups.type
+              const ticketId = result.groups.ticketId
+              const description = result.groups.description.replaceAll("-", " ")
+
+              if(type === undefined || description === undefined) {
+                code.setFailed(`Failed to due : "type" and/or "description" are missing in your branch. This one must follow this pattern "{type}/{ticketId}?/{description}" and is actually ${{ inputs.target }}.`)
+              }
+
+              const pullRequest = (await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  head: context.ref,
+                  base: ${{ github.event.repository.default_branch }},
+                  draft: true,
+                  title: `${type}${ticketId ? '(' + ticketId + ')' : ''}: ${description}`,
+                  body: ticketId ? `Close ${ticketId}` : ''
+                })).data 
+
+              github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pullRequest.number,
+                  labels: labels[type]
+                })
+
+              github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pullRequest.number,
+                  assignees: [context.payload.sender.login]
+                })
+
