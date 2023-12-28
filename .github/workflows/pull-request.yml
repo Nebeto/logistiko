@@ -51,7 +51,7 @@ jobs:
               }
         - id: create-pull-request
           name: Create a draft pull request on Github
-          if: ${{ steps.check-pull-request.outputs.result.notExists }}
+          if: ${{ fromJSON(steps.check-pull-request.outputs.result).notExists }}
           uses: actions/github-script@v7
           with:
             retries: 3
@@ -103,7 +103,7 @@ jobs:
               }
         - id: add-labels
           name: Add one or many labels to the pull request
-          if: ${{ steps.check-pull-request.outputs.result.notExists }}
+          if: ${{ fromJSON(steps.check-pull-request.outputs.result).notExists }}
           uses: actions/github-script@v7
           with:
             retries: 3
@@ -126,7 +126,7 @@ jobs:
                 })
         - id: add-assignees
           name: Add one or many assignees to the pull request
-          if: ${{ steps.check-pull-request.outputs.result.notExists }}
+          if: ${{ fromJSON(steps.check-pull-request.outputs.result).notExists }}
           uses: actions/github-script@v7
           with:
             retries: 3
