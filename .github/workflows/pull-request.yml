@@ -7,6 +7,10 @@ on:
         description: The branch on which actual developments are in progress.
         required: true
         type: string
+      template:
+        description: A template used as a body of the Pull Request.
+        required: false
+        type: string
     secrets:
       github-token:
         description: The Github token with "repository viewer" access.
@@ -59,14 +63,26 @@ jobs:
                 code.setFailed(`Failed to due : "type" and/or "description" are missing in your branch. This one must follow this pattern "{type}/{ticketId}?/{description}" and is actually ${{ inputs.target }}.`)
               }
 
+              let title = `${type}{ticket-id}: ${description}`
+              let body = ""
+
+              if("${{ inputs.template }}" != "") {
+                body = require("${{ inputs.template }}").replaceAll("{creator}", context.payload.sender.login)
+              }
+
+              if(ticketId !== undefined) {
+                title = title.replace("{ticket-id}", `(${ticketId})`)
+                body = body.replaceAll("{ticket-id}", ticketId)
+              }
+
               const pullRequest = (await github.rest.pulls.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   head: context.ref,
                   base: "${{ github.event.repository.default_branch }}",
                   draft: true,
-                  title: `${type}${ticketId ? '(' + ticketId + ')' : ''}: ${description}`,
-                  body: ticketId ? `Close ${ticketId}` : ''
+                  title,
+                  body
                 })).data 
 
               github.rest.issues.addLabels({
