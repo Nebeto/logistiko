@@ -18,6 +18,6 @@ jobs:
       node-version: "latest"
       max-warnings: -1
     secrets:
-      github-token: ${{ secrets.LOGISTIKO_GITHUB_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
             

@@ -47,7 +47,10 @@ on:
       snyk-token:
         description: The Snyk token. 
         required: true
-        
+
+permissions: 
+  security-events: write
+
 jobs:
   scan-code:
     runs-on: ubuntu-latest
@@ -95,8 +98,6 @@ jobs:
   scan-dependencies:
     runs-on: ubuntu-latest
     name: Scan dependencies for vulnerabilities
-    permissions:
-      security-events: write
     if: ${{ contains(fromJSON('["all", "dependencies"]'), inputs.scan-mode) }}
     steps:
       - id: checkout-code

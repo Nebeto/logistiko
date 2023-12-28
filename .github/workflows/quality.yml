@@ -22,7 +22,10 @@ on:
       github-token:
         description: The Github token with "repository viewer" access.
         required: true
-            
+
+permissions:
+  contents: read
+
 jobs:
   scan-code:
     runs-on: ubuntu-latest

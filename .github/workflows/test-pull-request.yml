@@ -19,6 +19,6 @@ jobs:
     with:
       target: ${{ github.ref_name }}
     secrets:
-      github-token: ${{ secrets.LOGISTIKO_GITHUB_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
             
