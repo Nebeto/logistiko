@@ -46,6 +46,8 @@ jobs:
                   })
                 )
 
+              console.log(pullRequests, pullRequests.length)
+
               return {
                 notExists: pullRequests.length === 0
               }
