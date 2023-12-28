@@ -40,9 +40,15 @@ jobs:
               const regexp = /^(?<type>\w+)\/?(?<ticketId>[\w\-_]+)?\/(?<description>[\w\-]+)$/gi
               const result = "${{ inputs.target }}".matchAll(regexp)
 
-              const type = result.groups.type
-              const ticketId = result.groups.ticketId
-              const description = result.groups.description.replaceAll("-", " ")
+              let type
+              let ticketId
+              let description
+
+              for (const match of result) {
+                type = match.groups?.type
+                ticketId = match.groups?.ticketId
+                description = match.groups?.description?.replaceAll("-", " ")
+              }
 
               if(type === undefined || description === undefined) {
                 code.setFailed(`Failed to due : "type" and/or "description" are missing in your branch. This one must follow this pattern "{type}/{ticketId}?/{description}" and is actually ${{ inputs.target }}.`)
