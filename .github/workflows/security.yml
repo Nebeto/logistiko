@@ -95,6 +95,8 @@ jobs:
   scan-dependencies:
     runs-on: ubuntu-latest
     name: Scan dependencies for vulnerabilities
+    permissions:
+      security-events: write
     if: ${{ contains(fromJSON('["all", "dependencies"]'), inputs.scan-mode) }}
     steps:
       - id: checkout-code
