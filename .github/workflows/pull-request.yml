@@ -47,8 +47,6 @@ jobs:
                   }
                 )
 
-              console.log(pullRequests, pullRequests.length)
-
               return {
                 notExists: pullRequests.length === 0
               }
@@ -86,6 +84,8 @@ jobs:
               if(ticketId !== undefined) {
                 title = title.replace("{ticket-id}", `(${ticketId})`)
                 body = body.replaceAll("{ticket-id}", ticketId)
+              } else {
+                title = title.replace("{ticket-id}", "")
               }
 
               const pullRequest = (await github.rest.pulls.create({
@@ -124,8 +124,8 @@ jobs:
               github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: ${{ steps.create-pull-request.outputs.result.number }},
-                  labels: labels["${{ steps.create-pull-request.outputs.result.type }}"]
+                  issue_number: ${{ fromJSON(steps.create-pull-request.outputs.result.number) }},
+                  labels: labels["${{ fromJSON(steps.create-pull-request.outputs.result).type }}"]
                 })
         - id: add-assignees
           name: Add one or many assignees to the pull request
@@ -137,6 +137,6 @@ jobs:
               github.rest.issues.addAssignees({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: ${{ steps.create-pull-request.outputs.result.number }},
+                  issue_number: ${{ fromJSON(steps.create-pull-request.outputs.result).number }},
                   assignees: [context.payload.sender.login]
                 })
