@@ -78,7 +78,8 @@ jobs:
               let body = ""
 
               if("${{ inputs.template }}" != "") {
-                body = require("${{ inputs.template }}").replaceAll("{creator}", context.payload.sender.login)
+                const fs = require("fs");
+                body = fs.readFileSync("${{ inputs.template }}", "utf-8").replaceAll("{creator}", context.payload.sender.login)
               }
 
               if(ticketId !== undefined) {
