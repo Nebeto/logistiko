@@ -18,6 +18,7 @@ jobs:
     uses: Nebeto/logistiko/.github/workflows/pull-request.yml@main
     with:
       target: ${{ github.ref_name }}
+      template: ".github/PULL_REQUEST_TEMPLATE/pull_request_template.md"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
