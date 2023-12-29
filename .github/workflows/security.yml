@@ -48,7 +48,8 @@ on:
         description: The Snyk token. 
         required: true
 
-permissions: 
+permissions:
+  contents: read
   security-events: write
 
 jobs:
