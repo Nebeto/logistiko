@@ -124,7 +124,7 @@ jobs:
               github.rest.issues.addLabels({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: ${{ fromJSON(steps.create-pull-request.outputs.result.number) }},
+                  issue_number: ${{ fromJSON(steps.create-pull-request.outputs.result).number }},
                   labels: labels["${{ fromJSON(steps.create-pull-request.outputs.result).type }}"]
                 })
         - id: add-assignees
